@@ -2,6 +2,8 @@ package logo
 
 import (
 	"fmt"
+	"runtime"
+	"strings"
 	"time"
 )
 
@@ -12,6 +14,7 @@ const (
 	INFO
 	WARN
 	ERROR
+	NONE
 )
 
 func (l Level) String() string {
@@ -38,6 +41,8 @@ type LogMessage struct {
 
 var Context *MDC
 
+var LogLevel Level
+
 func init() {
 	Context = NewMDC()
 }
@@ -47,11 +52,13 @@ func NewLogger(ctx map[string]string) *Logger {
 	for key, value := range ctx {
 		mdc[key] = value
 	}
-	return &Logger{MDCFromMap(mdc)}
+	return &Logger{MDCFromMap(mdc), 0}
 }
 
 type Logger struct {
 	MDC *MDC
+	//StackDepth is used to adjust the file name lookups for trace logs.
+	StackDepth uint8
 }
 
 //NewLogger returns a new logger building on the context of this logger
@@ -60,21 +67,44 @@ func (l *Logger) NewLogger(ctx map[string]string) *Logger {
 	for key, value := range ctx {
 		mdc[key] = value
 	}
-	return &Logger{MDCFromMap(mdc)}
+	return &Logger{MDCFromMap(mdc), 0}
 }
 
 func (l *Logger) Tracef(arg0 string, args ...interface{}) {
-	logMessage(TRACE, l.MDC.snapshot(), fmt.Sprintf(arg0, args...))
+	if LogLevel > TRACE {
+		return
+	}
+	mdc := l.MDC.snapshot()
+	mdc["file"] = getFileStr(2 + int(l.StackDepth))
+	logMessage(TRACE, mdc, fmt.Sprintf(arg0, args...))
 }
 
 func (l *Logger) Infof(arg0 string, args ...interface{}) {
+	if LogLevel > INFO {
+		return
+	}
 	logMessage(INFO, l.MDC.snapshot(), fmt.Sprintf(arg0, args...))
 }
 
 func (l *Logger) Warnf(arg0 string, args ...interface{}) {
+	if LogLevel > WARN {
+		return
+	}
 	logMessage(WARN, l.MDC.snapshot(), fmt.Sprintf(arg0, args...))
 }
 
 func (l *Logger) Errorf(arg0 string, args ...interface{}) {
+	if LogLevel > ERROR {
+		return
+	}
 	logMessage(ERROR, l.MDC.snapshot(), fmt.Sprintf(arg0, args...))
+}
+
+func getFileStr(skip int) string {
+	if _, file, line, ok := runtime.Caller(skip); ok {
+		idx := strings.LastIndex(file, "/")
+		return fmt.Sprintf("%s:%d", file[idx+1:], line)
+	} else {
+		return "???:0"
+	}
 }
