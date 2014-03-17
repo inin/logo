@@ -13,6 +13,6 @@ Example Usage
     func main() {
         defer logo.Close()
         logo.AddAppender(logo.NewStdoutAppender())
-        log = logo.NewLogger(nil)
-        log.Trace("Hello, World!")
+        log := logo.NewLogger(nil)
+        log.Tracef("Hello, World!")
     }
