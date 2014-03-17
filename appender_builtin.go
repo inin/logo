@@ -16,7 +16,8 @@ type stdoutAppender struct {
 }
 
 func (s *stdoutAppender) Write(message *LogMessage) {
-	s.logger.Printf("%s: [%v] %s", message.Level, message.Timestamp, message.Message)
+	const layout = "2006-01-02T15:04:05.000Z"
+	s.logger.Printf("%s: [%v] %s", message.Level, message.Timestamp.Format(layout), message.Message)
 	
 }
 
