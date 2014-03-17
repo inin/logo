@@ -36,21 +36,45 @@ type LogMessage struct {
 	MDC       map[string]string
 }
 
+var Context *MDC
+
+func init() {
+	Context = NewMDC()
+}
+
+func NewLogger(ctx map[string]string) *Logger {
+	mdc := Context.snapshot()
+	for key, value := range ctx {
+		mdc[key] = value
+	}
+	return &Logger{MDCFromMap(mdc)}
+}
+
 type Logger struct {
+	MDC *MDC
+}
+
+//NewLogger returns a new logger building on the context of this logger
+func (l *Logger) NewLogger(ctx map[string]string) *Logger {
+	mdc := l.MDC.snapshot()
+	for key, value := range ctx {
+		mdc[key] = value
+	}
+	return &Logger{MDCFromMap(mdc)}
 }
 
 func (l *Logger) Tracef(arg0 string, args ...interface{}) {
-	logMessage(TRACE, nil, fmt.Sprintf(arg0, args...))
+	logMessage(TRACE, l.MDC.snapshot(), fmt.Sprintf(arg0, args...))
 }
 
 func (l *Logger) Infof(arg0 string, args ...interface{}) {
-	logMessage(INFO, nil, fmt.Sprintf(arg0, args...))
+	logMessage(INFO, l.MDC.snapshot(), fmt.Sprintf(arg0, args...))
 }
 
 func (l *Logger) Warnf(arg0 string, args ...interface{}) {
-	logMessage(WARN, nil, fmt.Sprintf(arg0, args...))
+	logMessage(WARN, l.MDC.snapshot(), fmt.Sprintf(arg0, args...))
 }
 
 func (l *Logger) Errorf(arg0 string, args ...interface{}) {
-	logMessage(ERROR, nil, fmt.Sprintf(arg0, args...))
+	logMessage(ERROR, l.MDC.snapshot(), fmt.Sprintf(arg0, args...))
 }
