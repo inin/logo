@@ -83,16 +83,3 @@ func (a *appenderList) closeAll() {
 	//wait for writers routines to stop
 	a.wg.Wait()
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

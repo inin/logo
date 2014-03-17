@@ -1,8 +1,8 @@
 package logo
 
 import (
-	"sync"
 	"fmt"
+	"sync"
 )
 
 type MDC struct {
@@ -35,7 +35,7 @@ func (m *MDC) snapshot() map[string]string {
 	defer m.mu.Unlock()
 	data := make(map[string]string, len(m.data))
 	for key, value := range m.data {
-		data[key]=value
+		data[key] = value
 	}
 	return data
 }

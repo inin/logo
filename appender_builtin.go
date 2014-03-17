@@ -18,24 +18,8 @@ type stdoutAppender struct {
 func (s *stdoutAppender) Write(message *LogMessage) {
 	const layout = "2006-01-02T15:04:05.000Z"
 	s.logger.Printf("%s: [%v] %s", message.Level, message.Timestamp.Format(layout), message.Message)
-	
+
 }
 
-func (s *stdoutAppender) Close() {/* noop */}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+func (s *stdoutAppender) Close() { /* noop */
+}

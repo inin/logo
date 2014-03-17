@@ -1,8 +1,8 @@
 package logo
 
 import (
-	"time"
 	"fmt"
+	"time"
 )
 
 type Level uint8
@@ -54,6 +54,3 @@ func (l *Logger) Warnf(arg0 string, args ...interface{}) {
 func (l *Logger) Errorf(arg0 string, args ...interface{}) {
 	logMessage(ERROR, nil, fmt.Sprintf(arg0, args...))
 }
-
-
-

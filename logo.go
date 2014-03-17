@@ -14,8 +14,8 @@ func init() {
 }
 
 func Close() {
-	killCh <- true //stop the listener
-	<-doneCh //wait for it to flush and complete
+	killCh <- true       //stop the listener
+	<-doneCh             //wait for it to flush and complete
 	appenders.closeAll() //close the appenders
 }
 
@@ -33,7 +33,7 @@ func listen() {
 	//try to flush the contents of the log channel
 	for flush := true; flush; {
 		select {
-		case msg := <-msgCh: 
+		case msg := <-msgCh:
 			appenders.writeAll(msg)
 		case <-time.Tick(3 * time.Second): //too many messages, abort
 			flush = false
@@ -56,24 +56,6 @@ func logMessage(level Level, mdc map[string]string, msg string) {
 		msg,
 		mdc,
 	}
-	
+
 	msgCh <- message
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
