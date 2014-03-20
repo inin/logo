@@ -1,6 +1,7 @@
 package logo
 
 import (
+	"errors"
 	"fmt"
 	"runtime"
 	"strings"
@@ -14,6 +15,7 @@ const (
 	INFO
 	WARN
 	ERROR
+	PANIC
 	NONE
 )
 
@@ -27,6 +29,8 @@ func (l Level) String() string {
 		return "WARN"
 	case ERROR:
 		return "ERROR"
+	case PANIC:
+		return "PANIC"
 	default:
 		return "INFO"
 	}
@@ -98,6 +102,26 @@ func (l *Logger) Errorf(arg0 string, args ...interface{}) {
 		return
 	}
 	logMessage(ERROR, l.MDC.snapshot(), fmt.Sprintf(arg0, args...))
+}
+
+func (l *Logger) Panicf(arg0 string, args ...interface{}) {
+	if LogLevel > PANIC {
+		return
+	}
+
+	//get a stack trace
+	stack := make([]byte, 1024)
+	size := runtime.Stack(stack, true)
+	stackStr := string(stack[:size])
+
+	//add diagnostic info to context
+	mdc := l.MDC.snapshot()
+	mdc["file"] = getFileStr(2 + int(l.StackDepth))
+	mdc["stack_trace"] = stackStr
+
+	message := fmt.Sprintf(arg0, args...)
+	logMessage(PANIC, mdc, message)
+	panic(errors.New(message))
 }
 
 func getFileStr(skip int) string {
