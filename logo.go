@@ -13,6 +13,8 @@ func init() {
 	go listen()
 }
 
+//Close stops all logging and optimistically flushes pending channels to the
+//registered appenders.
 func Close() {
 	killCh <- true       //stop the listener
 	<-doneCh             //wait for it to flush and complete
@@ -45,6 +47,8 @@ func listen() {
 	doneCh <- true
 }
 
+//AddAppender adds an Appender to the list of appenders that will receive log
+//messages.
 func AddAppender(appender Appender) {
 	appenders.add(appender)
 }

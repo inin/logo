@@ -36,6 +36,8 @@ func (l Level) String() string {
 	}
 }
 
+//LogMessage carries the formatted string that was logged along with contextual
+//meta-data
 type LogMessage struct {
 	Level     Level
 	Timestamp time.Time
@@ -43,14 +45,21 @@ type LogMessage struct {
 	MDC       map[string]string
 }
 
+//Context is the base context that is inherited by all loggers created. Any
+//attribute added to this context will be included in the MDC of every log
+//emitted
 var Context *MDC
 
+//LogLevel is the current log level. The logger will ignore any message sent to
+//it that are lower than the specified level. The default level is 0 (TRACE)
 var LogLevel Level
 
 func init() {
 	Context = NewMDC()
 }
 
+//NewLogger creates a new Logger that overlays the provided context onto the
+//base context specified by Context.
 func NewLogger(ctx map[string]string) *Logger {
 	mdc := Context.snapshot()
 	for key, value := range ctx {
@@ -59,6 +68,8 @@ func NewLogger(ctx map[string]string) *Logger {
 	return &Logger{MDCFromMap(mdc), 0}
 }
 
+//Logger is the receiver of log messages. All log messages sent to a logger will
+//contain the MDC of the logger.
 type Logger struct {
 	MDC *MDC
 	//StackDepth is used to adjust the file name lookups for trace logs.

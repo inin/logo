@@ -5,11 +5,13 @@ import (
 	"sync"
 )
 
+//MDC is the mapped diagnostic context for a log message
 type MDC struct {
 	mu   sync.RWMutex
 	data map[string]string
 }
 
+//NewMDC creates a blank context
 func NewMDC() *MDC {
 	return &MDC{
 		sync.RWMutex{},
@@ -17,6 +19,8 @@ func NewMDC() *MDC {
 	}
 }
 
+//MDCFromMDC creates a context from an existing context, copying all
+//the data from the provided context.
 func MDCFromMDC(ctx *MDC) *MDC {
 	return &MDC{
 		sync.RWMutex{},
@@ -24,6 +28,7 @@ func MDCFromMDC(ctx *MDC) *MDC {
 	}
 }
 
+//MDCFromMap creates a context from the provided map. The map is not copied.
 func MDCFromMap(ctx map[string]string) *MDC {
 	return &MDC{
 		sync.RWMutex{},
@@ -31,6 +36,7 @@ func MDCFromMap(ctx map[string]string) *MDC {
 	}
 }
 
+//Get returns the value and existence for the given key.
 func (m *MDC) Get(key string) (string, bool) {
 	//aquire a read lock
 	m.mu.RLock()

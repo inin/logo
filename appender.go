@@ -4,6 +4,8 @@ import (
 	"sync"
 )
 
+//Appender is an interface that allows direction of log messages to a variety of
+//destinations. Appenders can be added via the AddAppender function.
 type Appender interface {
 	Write(message *LogMessage)
 	Close()

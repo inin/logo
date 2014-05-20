@@ -7,12 +7,16 @@ import (
 	"os"
 )
 
+//NewStdoutAppender creates an Appender that logs to standard output. Messages
+//are formatted as follows: "[LEVEL]: [TIMESTAMP] [MESSAGE]"
 func NewStdoutAppender() Appender {
 	return &stdoutAppender{
 		log.New(os.Stdout, "", 0), //use std logger for its buffering
 	}
 }
 
+//NewLogstashAppender creates an Appender that emits logstash formatted messages
+//to the specified writer.
 func NewLogstashAppender(w io.Writer, v LogstashVersion, pretty bool) Appender {
 	return &logstashAppender{
 		log.New(w, "", 0),
