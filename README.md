@@ -8,7 +8,7 @@ Example Usage
 
     package main
     
-    import "bitbucket.org/korbjt/logo"
+    import "github.com/inin/logo"
 
     func main() {
         defer logo.Close()
