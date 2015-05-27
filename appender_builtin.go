@@ -1,6 +1,7 @@
 package logo
 
 import (
+	"bytes"
 	"encoding/json"
 	"io"
 	"log"
@@ -31,8 +32,15 @@ type stdoutAppender struct {
 
 func (s *stdoutAppender) Write(message *LogMessage) {
 	const layout = "2006-01-02T15:04:05.000Z"
-	s.logger.Printf("%s: [%v] %s", message.Level, message.Timestamp.Format(layout), message.Message)
+	var buffer bytes.Buffer
 
+	for key, value := range message.MDC {
+		buffer.WriteString(key);
+		buffer.WriteString("=");
+		buffer.WriteString(value);
+		buffer.WriteString(" ");
+	}
+	s.logger.Printf("%s: [%v] %s %s", message.Level, message.Timestamp.Format(layout), message.Message, buffer.String())
 }
 
 func (s *stdoutAppender) Close() { /* noop */
@@ -67,7 +75,10 @@ func (l *logstashAppender) Write(message *LogMessage) {
 		msg["@timestamp"] = message.Timestamp.Format(logstashLayout)
 		out = msg
 	default: //use version 1
-		msg := message.MDC
+		msg := make(map[string]interface{})
+		for k,v := range message.MDC {
+			msg[k] = v
+		}
 		msg["level"] = message.Level.String()
 		msg["@message"] = message.Message
 		msg["@timestamp"] = message.Timestamp.Format(logstashLayout)
